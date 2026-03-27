@@ -4,6 +4,7 @@ import com.works.dto.CustomerRegisterRequestDto;
 import com.works.entity.Customer;
 import com.works.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,8 @@ public class CustomerService {
             return ResponseEntity.badRequest().body(hm);
         }
         Customer customer = modelMapper.map(customerRegisterRequestDto, Customer.class);
+        String hashPassword = BCrypt.hashpw(customer.getPassword(), BCrypt.gensalt());
+        customer.setPassword(hashPassword);
         customerRepository.save(customer);
         return ResponseEntity.ok().body(customer);
     }
