@@ -1,9 +1,6 @@
 package com.works.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Value;
 
 import java.io.Serializable;
@@ -28,6 +25,7 @@ public class CustomerRegisterRequestDto implements Serializable {
     @NotNull
     @Size(min = 9, max = 15)
     @NotEmpty
+    @Pattern(regexp = "^(?:\\+90\\d{10}|0\\s?\\d{3}\\s?\\d{3}\\s?\\d{2}\\s?\\d{2}|\\d{10})(?:\\s\\+\\d+)?$")
     String phone;
     boolean enabled;
     @NotNull
