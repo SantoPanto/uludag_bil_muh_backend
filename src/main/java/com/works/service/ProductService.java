@@ -22,16 +22,16 @@ import java.util.Optional;
 public class ProductService {
 
     final ProductRepository productRepository;
-    ModelMapper modelMapper = new ModelMapper();
+    final ModelMapper model;
 
     public Product save(ProductSaveRequestDto productSaveRequestDto) {
-        Product product = modelMapper.map(productSaveRequestDto, Product.class);
+        Product product = model.map(productSaveRequestDto, Product.class);
         return productRepository.save(product);
     }
 
     public List<Product> saveAll(List<ProductSaveRequestDto> productSaveRequestDtos){
         List<Product> productList = productSaveRequestDtos.stream()
-                .map(dto -> modelMapper.map(dto, Product.class))
+                .map(dto -> model.map(dto, Product.class))
                 .toList();
         return productRepository.saveAll(productList);
     }
@@ -52,7 +52,7 @@ public class ProductService {
     public ResponseEntity update(ProductUpdateRequestDto productUpdateRequestDto) {
         Optional<Product> optionalProduct = productRepository.findById(productUpdateRequestDto.getId());
         if(optionalProduct.isPresent()){
-            Product product = modelMapper.map(productUpdateRequestDto, Product.class);
+            Product product = model.map(productUpdateRequestDto, Product.class);
             productRepository.save(product);
             Map<String, Object> hm = Map.of("success", true, "message", "Product updated successfully.");
             return ResponseEntity.ok().body(hm);
@@ -64,6 +64,7 @@ public class ProductService {
 
     public Page<Product> productList(int page){
         Pageable pageable = Pageable.ofSize(10).withPage(page);
+        System.out.println("Product - " +  model.hashCode());
         return productRepository.findAll(pageable);
     }
 

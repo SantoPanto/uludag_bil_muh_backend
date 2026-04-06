@@ -9,12 +9,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class CustomerService {
 
     final CustomerRepository customerRepository;
     final HttpServletRequest request;
-    ModelMapper modelMapper = new ModelMapper();
+    final ModelMapper model;
 
     public ResponseEntity register(CustomerRegisterRequestDto customerRegisterRequestDto){
         List<Customer> customerList = customerRepository.findByEmailEqualsOrPhoneEqualsAllIgnoreCase(customerRegisterRequestDto.getEmail(), customerRegisterRequestDto.getPhone());
@@ -31,7 +33,7 @@ public class CustomerService {
             Map<String, Object> hm = Map.of("success", false, "message", "This email or phone number is already in use.");
             return ResponseEntity.badRequest().body(hm);
         }
-        Customer customer = modelMapper.map(customerRegisterRequestDto, Customer.class);
+        Customer customer = model.map(customerRegisterRequestDto, Customer.class);
         String hashPassword = BCrypt.hashpw(customer.getPassword(), BCrypt.gensalt());
         customer.setPassword(hashPassword);
         customerRepository.save(customer);
@@ -40,12 +42,13 @@ public class CustomerService {
 
     // login
     public ResponseEntity login(CustomerLoginRequestDto customerLoginRequestDto){
+        System.out.println("CustomerService - " +  model.hashCode());
         Optional<Customer> optionalCustomer = customerRepository.findByEnabledTrueAndEmailIgnoreCaseOrEnabledTrueAndPhoneIgnoreCase(customerLoginRequestDto.getUsername(), customerLoginRequestDto.getUsername());
         if(optionalCustomer.isPresent()){
             Customer customer = optionalCustomer.get();
             boolean isMatch = BCrypt.checkpw(customerLoginRequestDto.getPassword(), customer.getPassword());
             if(isMatch){
-                CustomerResponseDto customerResponseDto = modelMapper.map(customer, CustomerResponseDto.class);
+                CustomerResponseDto customerResponseDto = model.map(customer, CustomerResponseDto.class);
                 request.getSession().setAttribute("customer", customerResponseDto);
                 return ResponseEntity.ok().body(customerResponseDto);
             }
