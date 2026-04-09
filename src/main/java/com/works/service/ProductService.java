@@ -6,6 +6,8 @@ import com.works.entity.Product;
 import com.works.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,11 +26,13 @@ public class ProductService {
     final ProductRepository productRepository;
     final ModelMapper model;
 
+    @CacheEvict(cacheNames = "productListCache", allEntries = true)
     public Product save(ProductSaveRequestDto productSaveRequestDto) {
         Product product = model.map(productSaveRequestDto, Product.class);
         return productRepository.save(product);
     }
 
+    @CacheEvict(cacheNames = "productListCache", allEntries = true)
     public List<Product> saveAll(List<ProductSaveRequestDto> productSaveRequestDtos){
         List<Product> productList = productSaveRequestDtos.stream()
                 .map(dto -> model.map(dto, Product.class))
@@ -37,6 +41,7 @@ public class ProductService {
     }
 
 
+    @CacheEvict(cacheNames = "productListCache", allEntries = true)
     public ResponseEntity deleteOne(Long id) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         if(optionalProduct.isPresent()){
@@ -49,6 +54,7 @@ public class ProductService {
         }
     }
 
+    @CacheEvict(cacheNames = "productListCache", allEntries = true)
     public ResponseEntity update(ProductUpdateRequestDto productUpdateRequestDto) {
         Optional<Product> optionalProduct = productRepository.findById(productUpdateRequestDto.getId());
         if(optionalProduct.isPresent()){
@@ -62,10 +68,13 @@ public class ProductService {
         }
     }
 
+    // add cache to productList
+    @Cacheable(value = "productListCache", key = "#page")
     public Page<Product> productList(int page){
         Pageable pageable = Pageable.ofSize(10).withPage(page);
         System.out.println("Product - " +  model.hashCode());
-        return productRepository.findAll(pageable);
+        Page<Product> productPage = productRepository.findAll(pageable);
+        return productPage;
     }
 
     public Page<Product> search(String q, int page, String price){
