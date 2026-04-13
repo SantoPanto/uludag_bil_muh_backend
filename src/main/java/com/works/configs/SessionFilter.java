@@ -1,5 +1,6 @@
 package com.works.configs;
 
+import com.works.dto.CustomerResponseDto;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -79,6 +80,11 @@ public class SessionFilter implements Filter {
 
                 logger.warn("Unauthorized access -> IP: {}, URL: {}", ipAddress, urlPath);
 
+                // mvc control end redirect
+                if (urlPath.startsWith("/mvc")) {
+                    response.sendRedirect("/mvc/customer/login?authFail");
+                    return;
+                }
                 response.setContentType("application/json");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
@@ -91,6 +97,12 @@ public class SessionFilter implements Filter {
 
                 response.getWriter().write(jsonResponse);
                 return;
+            }else {
+                // oturum var
+                if (urlPath.startsWith("/mvc")) {
+                    CustomerResponseDto customerResponseDto = (CustomerResponseDto) customer;
+                    request.setAttribute("customer", customerResponseDto);
+                }
             }
         }
 

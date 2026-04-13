@@ -67,5 +67,12 @@ public class CustomerController {
 
     }
 
+    // customer logout
+    @GetMapping("customer/logout")
+    public String logout(){
+        customerService.logout();
+        return "redirect:/mvc/customer/login";
+    }
+
 
 }
