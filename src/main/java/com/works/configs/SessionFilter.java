@@ -102,6 +102,7 @@ public class SessionFilter implements Filter {
                 if (urlPath.startsWith("/mvc")) {
                     CustomerResponseDto customerResponseDto = (CustomerResponseDto) customer;
                     request.setAttribute("customer", customerResponseDto);
+                    request.setAttribute("pageUrl", urlPath);
                 }
             }
         }

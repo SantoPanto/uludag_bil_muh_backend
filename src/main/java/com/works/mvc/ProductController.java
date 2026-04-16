@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -23,5 +24,13 @@ public class ProductController {
         model.addAttribute("productPage", productPage);
         return "product";
     }
+
+    @GetMapping("product/delete/{id}")
+    public String delete(@PathVariable Long id) {
+        productService.deleteOne(id);
+        return "redirect:/mvc/product";
+    }
+
+
 
 }
